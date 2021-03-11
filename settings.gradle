@@ -1,0 +1,4 @@
+include ':threadmp3player'
+include ':threadex2'
+include ':app'
+rootProject.name = "Thread"
