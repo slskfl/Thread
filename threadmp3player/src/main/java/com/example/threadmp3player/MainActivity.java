@@ -103,24 +103,7 @@ public class MainActivity extends AppCompatActivity {
                     btnPlay.setEnabled(false);
                     btnStop.setEnabled(true);
                     btnPause.setEnabled(true);
-                    new Thread(){
-                        SimpleDateFormat timeFormat=new SimpleDateFormat("mm:ss");
-                        @Override
-                        public void run() {
-                            sbMp3.setMax(mPlayer.getDuration());
-                            while (mPlayer.isPlaying()){
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        sbMp3.setProgress(mPlayer.getCurrentPosition());
-                                        tvTime.setText("진행시간 : " +
-                                                timeFormat.format(mPlayer.getCurrentPosition()));
-                                    }
-                                });
-                                SystemClock.sleep(100);
-                            }
-                        }
-                    }.start();
+                    threadProcess();
                 } catch (IOException e){
                     showToast("재생할 수 없는 파일입니다.");
                 }
@@ -135,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
                     PAUSED=true;
                 }else {
                     mPlayer.start();
+                    threadProcess();
                     btnPause.setText("일시정지");
                     PAUSED=false;
                 }
@@ -150,27 +134,32 @@ public class MainActivity extends AppCompatActivity {
                 btnPause.setEnabled(false);
                 btnPause.setText("일시정지");
                 tvMp3.setText("실행중인 음악 : ");
-
-                new Thread(){
-                    SimpleDateFormat timeFormat=new SimpleDateFormat("mm:ss");
-                    @RequiresApi(api = Build.VERSION_CODES.O)
-                    @Override
-                    public void run() {
-                        sbMp3.setMax(mPlayer.getDuration());
-                        while (mPlayer.isPlaying()){
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    sbMp3.setProgress(mPlayer.getCurrentPosition());
-                                    tvTime.setText("진행시간 : " +mPlayer);
-                                }
-                            });
-                            SystemClock.sleep(100);
-                        }
-                    }
-                }.start();
+                tvTime.setText("진행시간 : ");
+                sbMp3.setProgress(0);
             }
         });
+    }
+
+    //스레드 처리
+    void threadProcess(){
+        new Thread(){
+            SimpleDateFormat timeFormat=new SimpleDateFormat("mm:ss");
+            @Override
+            public void run() {
+                sbMp3.setMax(mPlayer.getDuration());
+                while (mPlayer.isPlaying()){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            sbMp3.setProgress(mPlayer.getCurrentPosition());
+                            tvTime.setText("진행시간 : " +
+                                    timeFormat.format(mPlayer.getCurrentPosition()));
+                        }
+                    });
+                    SystemClock.sleep(100);
+                }
+            }
+        }.start();
     }
     //SD카드 처리 메서드
     void sdcardProcess(){
